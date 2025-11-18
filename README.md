@@ -1,576 +1,611 @@
-<a href="https://github.com/mortennobel/cpp-cheatsheet"><img align="right" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+# Modern C++23 Complete Cheatsheet
 
-# C++ QUICK REFERENCE / C++ CHEATSHEET
-Based on <a href="http://www.pa.msu.edu/~duxbury/courses/phy480/Cpp_refcard.pdf">Phillip M. Duxbury's C++ Cheatsheet</a> and edited by Morten Nobel-Jørgensen.
-The cheatsheet focus is both on the language as well as common classes from the standard library.
-C++11 additions is inspired by <a href="https://isocpp.org/blog/2012/12/c11-a-cheat-sheet-alex-sinyakov">ISOCPP.org C++11 Cheatsheet</a>).
+**A comprehensive, GitHub-ready reference covering the C++23 core language, STL, algorithms, containers, memory, threading, chrono, filesystem, ranges, and more.**
 
-The goal is to give a concise overview of basic, modern C++ (C++14).
+---
 
-The document is hosted on https://github.com/mortennobel/cpp-cheatsheet. Any comments and feedback are appreciated.
+# Table of Contents
 
-## Preprocessor
+1. [Language Basics](#language-basics)
+2. [Types & Value Categories](#types--value-categories)
+3. [Expressions & Operators](#expressions--operators)
+4. [Memory & Object Model](#memory--object-model)
+5. [STL Containers](#stl-containers)
+6. [Iterators](#iterators)
+7. [Algorithms](#algorithms)
+8. [Strings & string_view](#strings--string_view)
+9. [Smart Pointers](#smart-pointers)
+10. [Utility Types (optional, variant, any, expected, span, mdspan)](#utility-types)
+11. [Type Traits](#type-traits)
+12. [Ranges (C++20/23)](#ranges)
+13. [chrono](#chrono)
+14. [random](#random)
+15. [filesystem](#filesystem)
+16. [Threading & Concurrency](#threading--concurrency)
+17. [Formatting & I/O](#formatting--io)
+18. [Useful Idioms & Patterns](#useful-idioms--patterns)
 
-```cpp
-                            // Comment to end of line
-                            /* Multi-line comment */
-#include  <stdio.h>         // Insert standard header file
-#include "myfile.h"         // Insert file in current directory
-#define X some text         // Replace X with some text
-#define F(a,b) a+b          // Replace F(1,2) with 1+2
-#define X \
- some text                  // Multiline definition
-#undef X                    // Remove definition
-#if defined(X)              // Conditional compilation (#ifdef X)
-#else                       // Optional (#ifndef X or #if !defined(X))
-#endif                      // Required after #if, #ifdef
-```
+---
 
-## Literals
+# 1. Language Basics
 
-```cpp
-255, 0377, 0xff             // Integers (decimal, octal, hex)
-2147483647L, 0x7fffffffl    // Long (32-bit) integers
-123.0, 1.23e2               // double (real) numbers
-'a', '\141', '\x61'         // Character (literal, octal, hex)
-'\n', '\\', '\'', '\"'      // Newline, backslash, single quote, double quote
-"string\n"                  // Array of characters ending with newline and \0
-"hello" "world"             // Concatenated strings
-true, false                 // bool constants 1 and 0
-nullptr                     // Pointer type with the address of 0
-```
-
-## Declarations
+## Namespaces
 
 ```cpp
-int x;                      // Declare x to be an integer (value undefined)
-int x=255;                  // Declare and initialize x to 255
-short s; long l;            // Usually 16 or 32 bit integer (int may be either)
-char c='a';                 // Usually 8 bit character
-unsigned char u=255;
-signed char s=-1;           // char might be either
-unsigned long x =
-  0xffffffffL;              // short, int, long are signed
-float f; double d;          // Single or double precision real (never unsigned)
-bool b=true;                // true or false, may also use int (1 or 0)
-int a, b, c;                // Multiple declarations
-int a[10];                  // Array of 10 ints (a[0] through a[9])
-int a[]={0,1,2};            // Initialized array (or a[3]={0,1,2}; )
-int a[2][2]={{1,2},{4,5}};  // Array of array of ints
-char s[]="hello";           // String (6 elements including '\0')
-std::string s = "Hello"     // Creates string object with value "Hello"
-std::string s = R"(Hello
-World)";                    // Creates string object with value "Hello\nWorld"
-int* p;                     // p is a pointer to (address of) int
-char* s="hello";            // s points to unnamed array containing "hello"
-void* p=nullptr;            // Address of untyped memory (nullptr is 0)
-int& r=x;                   // r is a reference to (alias of) int x
-enum weekend {SAT,SUN};     // weekend is a type with values SAT and SUN
-enum weekend day;           // day is a variable of type weekend
-enum weekend{SAT=0,SUN=1};  // Explicit representation as int
-enum {SAT,SUN} day;         // Anonymous enum
-enum class Color {Red,Blue};// Color is a strict type with values Red and Blue
-Color x = Color::Red;       // Assign Color x to red
-typedef String char*;       // String s; means char* s;
-const int c=3;              // Constants must be initialized, cannot assign to
-const int* p=a;             // Contents of p (elements of a) are constant
-int* const p=a;             // p (but not contents) are constant
-const int* const p=a;       // Both p and its contents are constant
-const int& cr=x;            // cr cannot be assigned to change x
-int8_t,uint8_t,int16_t,
-uint16_t,int32_t,uint32_t,
-int64_t,uint64_t            // Fixed length standard types
-auto it = m.begin();        // Declares it to the result of m.begin()
-auto const param = config["param"];
-                            // Declares it to the const result
-auto& s = singleton::instance();
-                            // Declares it to a reference of the result
-```
-
-## STORAGE Classes
-
-```cpp
-int x;                      // Auto (memory exists only while in scope)
-static int x;               // Global lifetime even if local scope
-extern int x;               // Information only, declared elsewhere
-```
-
-## Statements
-
-```cpp
-x=y;                        // Every expression is a statement
-int x;                      // Declarations are statements
-;                           // Empty statement
-{                           // A block is a single statement
-    int x;                  // Scope of x is from declaration to end of block
+namespace myns {
+    int x;
 }
-if (x) a;                   // If x is true (not 0), evaluate a
-else if (y) b;              // If not x and y (optional, may be repeated)
-else c;                     // If not x and not y (optional)
-
-while (x) a;                // Repeat 0 or more times while x is true
-
-for (x; y; z) a;            // Equivalent to: x; while(y) {a; z;}
-
-for (x : y) a;              // Range-based for loop e.g.
-                            // for (auto& x in someList) x.y();
-
-do a; while (x);            // Equivalent to: a; while(x) a;
-
-switch (x) {                // x must be int
-    case X1: a;             // If x == X1 (must be a const), jump here
-    case X2: b;             // Else if x == X2, jump here
-    default: c;             // Else jump here (optional)
-}
-break;                      // Jump out of while, do, or for loop, or switch
-continue;                   // Jump to bottom of while, do, or for loop
-return x;                   // Return x from function to caller
-try { a; }
-catch (T t) { b; }          // If a throws a T, then jump here
-catch (...) { c; }          // If a throws something else, jump here
+using myns::x;
+using namespace std; // avoid in headers
 ```
 
 ## Functions
 
 ```cpp
-int f(int x, int y);        // f is a function taking 2 ints and returning int
-void f();                   // f is a procedure taking no arguments
-void f(int a=0);            // f() is equivalent to f(0)
-f();                        // Default return type is int
-inline f();                 // Optimize for speed
-f() { statements; }         // Function definition (must be global)
-T operator+(T x, T y);      // a+b (if type T) calls operator+(a, b)
-T operator-(T x);           // -a calls function operator-(a)
-T operator++(int);          // postfix ++ or -- (parameter ignored)
-extern "C" {void f();}      // f() was compiled in C
+void f(int);              // declaration
+inline int g() { return 1; }
+constexpr int h(int x) { return x*x; }
+consteval int sq(int x) { return x*x; }
 ```
 
-Function parameters and return values may be of any type. A function must either be declared or defined before
-it is used. It may be declared first and defined later. Every program consists of a set of a set of global variable
-declarations and a set of function definitions (possibly in separate files), one of which must be:
+## Overloading & Default Args
 
 ```cpp
-int main()  { statements... }     // or
-int main(int argc, char* argv[]) { statements... }
+int f(int);
+double f(double);
+void foo(int x = 3);
 ```
 
-`argv` is an array of `argc` strings from the command line.
-By convention, `main` returns status `0` if successful, `1` or higher for errors.
-
-Functions with different parameters may have the same name (overloading). Operators except `::` `.` `.*` `?:` may be overloaded.
-Precedence order is not affected. New operators may not be created.
-
-## Expressions
-
-Operators are grouped by precedence, highest first. Unary operators and assignment evaluate right to left. All
-others are left to right. Precedence does not affect order of evaluation, which is undefined. There are no run time
-checks for arrays out of bounds, invalid pointers, etc.
+## Templates
 
 ```cpp
-T::X                        // Name X defined in class T
-N::X                        // Name X defined in namespace N
-::X                         // Global name X
+template <class T>
+T add(T a, T b) { return a + b; }
 
-t.x                         // Member x of struct or class t
-p-> x                       // Member x of struct or class pointed to by p
-a[i]                        // i'th element of array a
-f(x,y)                      // Call to function f with arguments x and y
-T(x,y)                      // Object of class T initialized with x and y
-x++                         // Add 1 to x, evaluates to original x (postfix)
-x--                         // Subtract 1 from x, evaluates to original x
-typeid(x)                   // Type of x
-typeid(T)                   // Equals typeid(x) if x is a T
-dynamic_cast< T>(x)         // Converts x to a T, checked at run time.
-static_cast< T>(x)          // Converts x to a T, not checked
-reinterpret_cast< T>(x)     // Interpret bits of x as a T
-const_cast< T>(x)           // Converts x to same type T but not const
-
-sizeof x                    // Number of bytes used to represent object x
-sizeof(T)                   // Number of bytes to represent type T
-++x                         // Add 1 to x, evaluates to new value (prefix)
---x                         // Subtract 1 from x, evaluates to new value
-~x                          // Bitwise complement of x
-!x                          // true if x is 0, else false (1 or 0 in C)
--x                          // Unary minus
-+x                          // Unary plus (default)
-&x                          // Address of x
-*p                          // Contents of address p (*&x equals x)
-new T                       // Address of newly allocated T object
-new T(x, y)                 // Address of a T initialized with x, y
-new T[x]                    // Address of allocated n-element array of T
-delete p                    // Destroy and free object at address p
-delete[] p                  // Destroy and free array of objects at p
-(T) x                       // Convert x to T (obsolete, use .._cast<T>(x))
-
-x * y                       // Multiply
-x / y                       // Divide (integers round toward 0)
-x % y                       // Modulo (result has sign of x)
-
-x + y                       // Add, or \&x[y]
-x - y                       // Subtract, or number of elements from *x to *y
-x << y                      // x shifted y bits to left (x * pow(2, y))
-x >> y                      // x shifted y bits to right (x / pow(2, y))
-
-x < y                       // Less than
-x <= y                      // Less than or equal to
-x > y                       // Greater than
-x >= y                      // Greater than or equal to
-
-x & y                       // Bitwise and (3 & 6 is 2)
-x ^ y                       // Bitwise exclusive or (3 ^ 6 is 5)
-x | y                       // Bitwise or (3 | 6 is 7)
-x && y                      // x and then y (evaluates y only if x (not 0))
-x || y                      // x or else y (evaluates y only if x is false (0))
-x = y                       // Assign y to x, returns new value of x
-x += y                      // x = x + y, also -= *= /= <<= >>= &= |= ^=
-x ? y : z                   // y if x is true (nonzero), else z
-throw x                     // Throw exception, aborts if not caught
-x , y                       // evaluates x and y, returns y (seldom used)
+template <class T>
+requires std::integral<T>         // C++20
+T incr(T v) { return v + 1; }
 ```
 
 ## Classes
 
 ```cpp
-class T {                   // A new type
-private:                    // Section accessible only to T's member functions
-protected:                  // Also accessible to classes derived from T
-public:                     // Accessible to all
-    int x;                  // Member data
-    void f();               // Member function
-    void g() {return;}      // Inline member function
-    void h() const;         // Does not modify any data members
-    int operator+(int y);   // t+y means t.operator+(y)
-    int operator-();        // -t means t.operator-()
-    T(): x(1) {}            // Constructor with initialization list
-    T(const T& t): x(t.x) {}// Copy constructor
-    T& operator=(const T& t)
-    {x=t.x; return *this; } // Assignment operator
-    ~T();                   // Destructor (automatic cleanup routine)
-    explicit T(int a);      // Allow t=T(3) but not t=3
-    T(float x): T((int)x) {}// Delegate constructor to T(int)
-    operator int() const
-    {return x;}             // Allows int(t)
-    friend void i();        // Global function i() has private access
-    friend class U;         // Members of class U have private access
-    static int y;           // Data shared by all T objects
-    static void l();        // Shared code.  May access y but not x
-    class Z {};             // Nested class T::Z
-    typedef int V;          // T::V means int
+struct S {
+    int x = 0;
+    S() = default;
+    S(int x): x(x) {}
+    S(const S&) = default;
+    S(S&&) = default;
+    S& operator=(const S&) = default;
+    S& operator=(S&&) = default;
+    ~S() = default;
 };
-void T::f() {               // Code for member function f of class T
-    this->x = x;}           // this is address of self (means x=x;)
-int T::y = 2;               // Initialization of static member (required)
-T::l();                     // Call to static member
-T t;                        // Create object t implicit call constructor
-t.f();                      // Call method f on object t
-
-struct T {                  // Equivalent to: class T { public:
-  virtual void i();         // May be overridden at run time by derived class
-  virtual void g()=0; };    // Must be overridden (pure virtual)
-class U: public T {         // Derived class U inherits all members of base T
-  public:
-  void g(int) override; };  // Override method g
-class V: private T {};      // Inherited members of T become private
-class W: public T, public U {};
-                            // Multiple inheritance
-class X: public virtual T {};
-                            // Classes derived from X have base T directly
 ```
 
-All classes have a default copy constructor, assignment operator, and destructor, which perform the
-corresponding operations on each data member and each base class as shown above. There is also a default no-argument
-constructor (required to create arrays) if the class has no constructors. Constructors, assignment, and
-destructors do not inherit.
-
-## Templates
+## Enums
 
 ```cpp
-template <class T> T f(T t);// Overload f for all types
-template <class T> class X {// Class with type parameter T
-  X(T t); };                // A constructor
-template <class T> X<T>::X(T t) {}
-                            // Definition of constructor
-X<int> x(3);                // An object of type "X of int"
-template <class T, class U=T, int n=0>
-                            // Template with default parameters
+enum class Color : uint8_t { Red, Green, Blue };
 ```
 
-## Namespaces
+## Lambdas
 
 ```cpp
-namespace N {class T {};}   // Hide name T
-N::T t;                     // Use name T in namespace N
-using namespace N;          // Make T visible without N::
+auto f = [a=5](int x) { return a + x; };
+auto g = []<class T>(T x) { return x + 1; };
 ```
 
-## `memory` (dynamic memory management)
+---
+
+# 2. Types & Value Categories
+
+## Fundamental types
+
+```
+bool, char, wchar_t, char8_t, char16_t, char32_t
+signed/unsigned char
+short, int, long, long long
+float, double, long double
+```
+
+## Value Categories
+
+```
+prvalue = pure rvalue
+xvalue  = expiring value
+lvalue  = regular left-value
+```
+
+## auto / decltype
 
 ```cpp
-#include <memory>           // Include memory (std namespace)
-shared_ptr<int> x;          // Empty shared_ptr to a integer on heap. Uses reference counting for cleaning up objects.
-x = make_shared<int>(12);   // Allocate value 12 on heap
-shared_ptr<int> y = x;      // Copy shared_ptr, implicit changes reference count to 2.
-cout << *y;                 // Dereference y to print '12'
-if (y.get() == x.get()) {   // Raw pointers (here x == y)
-    cout << "Same";  
-}  
-y.reset();                  // Eliminate one owner of object
-if (y.get() != x.get()) { 
-    cout << "Different";  
-}  
-if (y == nullptr) {         // Can compare against nullptr (here returns true)
-    cout << "Empty";  
-}  
-y = make_shared<int>(15);   // Assign new value
-cout << *y;                 // Dereference x to print '15'
-cout << *x;                 // Dereference x to print '12'
-weak_ptr<int> w;            // Create empty weak pointer
-w = y;                      // w has weak reference to y.
-if (shared_ptr<int> s = w.lock()) { // Has to be copied into a shared_ptr before usage
-    cout << *s;
+auto x = 3;          // int
+auto& r = x;        // int&
+
+decltype(x) y;       // int
+decltype((x)) z = x; // int&
+```
+
+---
+
+# 3. Expressions & Operators
+
+### Common operators
+
+```
++, -, *, /, %, +=, -=, *=, /=, %=
+&, |, ^, ~, <<, >>
+&&, ||, !
+==, !=, <, >, <=, >=
+?:    // conditional
+```
+
+### `constexpr`, `consteval`
+
+```cpp
+constexpr int f(int x) { return x*2; }
+consteval int g(int x) { return x*2; }
+```
+
+### Casts
+
+```cpp
+static_cast<double>(x)
+dynamic_cast<Derived*>(base)
+const_cast<T*>(ptr)
+reinterpret_cast<char*>(p)
+```
+
+---
+
+# 4. Memory & Object Model
+
+## new / delete
+
+```cpp
+int* p = new int(5);
+delete p;
+
+int* a = new int[10];
+delete[] a;
+```
+
+## Placement new
+
+```cpp
+char buf[sizeof(int)];
+int* p = new(buf) int(42);
+p->~int();
+```
+
+## Alignment
+
+```cpp
+alignas(64) int cacheline;
+```
+
+---
+
+# 5. STL Containers
+
+## Sequence Containers
+
+### vector
+
+```cpp
+std::vector<int> v;
+v.push_back(3);
+v.emplace_back(4);
+v.size(); v.capacity(); v.reserve(100);
+v.data();
+```
+
+### string
+
+```cpp
+std::string s = "hello";
+s += " world";
+s.substr(1, 3);
+```
+
+### deque
+
+Efficient push/pop at both ends.
+
+### list / forward_list
+
+Node-based, stable iterators.
+
+### array
+
+```cpp
+std::array<int, 3> a = {1,2,3};
+```
+
+### span (C++20)
+
+```cpp
+void f(std::span<int> s) { for(int& x: s) x++; }
+```
+
+---
+
+## Associative Containers
+
+### set / multiset
+
+```cpp
+std::set<int> s;
+s.insert(3);
+s.find(3);
+```
+
+### map / multimap
+
+```cpp
+std::map<std::string, int> m;
+m["a"] = 1;
+```
+
+---
+
+## Unordered Containers
+
+### unordered_set / unordered_map
+
+```cpp
+std::unordered_map<std::string,int> h;
+h["x"] = 4;
+```
+
+Load factor, bucket_count, rehash.
+
+---
+
+## Container Adapters
+
+### stack, queue, priority_queue
+
+```cpp
+std::stack<int> st;
+st.push(3);
+st.top();
+```
+
+---
+
+# 6. Iterators
+
+## Categories
+
+```
+Input → Forward → Bidirectional → RandomAccess → Contiguous
+```
+
+## Operations
+
+```cpp
+++it; it++; --it;
+*it; it->member;
+it + n; it - n;
+```
+
+---
+
+# 7. Algorithms
+
+## Sorting
+
+```cpp
+std::sort(v.begin(), v.end());
+std::stable_sort(...);
+std::partial_sort(...);
+std::nth_element(...);
+```
+
+## Binary Search
+
+```cpp
+std::binary_search(...);
+std::lower_bound(...);
+std::upper_bound(...);
+std::equal_range(...);
+```
+
+## Non-modifying
+
+```
+all_of, any_of, none_of
+for_each
+tfind_if, count, mismatch
+```
+
+## Modifying
+
+```
+copy, move, fill, transform, generate
+remove, unique, rotate, shuffle
+```
+
+## Set Algorithms
+
+```
+set_union, set_intersection, set_difference, set_symmetric_difference
+```
+
+## Heap
+
+```
+push_heap, pop_heap, make_heap, sort_heap
+```
+
+---
+
+# 8. Strings & string_view
+
+## string_view
+
+```cpp
+std::string_view sv = "hello";
+sv.substr(1);
+```
+
+Zero-allocation slicing, lightweight.
+
+## Useful string ops
+
+```
+s.find(), rfind(), find_first_of()
+substr(), starts_with(), ends_with()
+```
+
+---
+
+# 9. Smart Pointers
+
+## unique_ptr
+
+```cpp
+std::unique_ptr<Foo> p = std::make_unique<Foo>(3);
+```
+
+## shared_ptr / weak_ptr
+
+```cpp
+auto sp = std::make_shared<int>(5);
+std::weak_ptr<int> wp = sp;
+```
+
+## Aliasing constructor
+
+```cpp
+auto sp2 = std::shared_ptr<Base>(sp, sp->ptr);   // same control block
+```
+
+---
+
+# 10. Utility Types
+
+## optional
+
+```cpp
+std::optional<int> x = 3;
+if (x) cout << *x;
+```
+
+## variant
+
+```cpp
+std::variant<int, string> v;
+v = 3;
+```
+
+## any
+
+```cpp
+std::any a = 3;
+```
+
+## expected (C++23)
+
+```cpp
+std::expected<int, std::string> e = 3;
+```
+
+## span & mdspan
+
+```cpp
+std::span<int> sp(arr, n);
+std::mdspan<int, extents<size_t, 3,3>> mat(ptr);
+```
+
+---
+
+# 11. Type Traits
+
+Common traits:
+
+```
+is_same, is_integral, is_floating_point
+is_enum, is_class
+is_trivial, is_pod, is_standard_layout
+remove_reference, remove_const
+make_signed, make_unsigned
+conditional, enable_if
+```
+
+Example:
+
+```cpp
+static_assert(std::is_same_v<int, int>);
+```
+
+---
+
+# 12. Ranges
+
+## Basic Usage
+
+```cpp
+#include <ranges>
+
+for (int x : v | std::views::filter(is_even)) {
+    ...
 }
-unique_ptr<int> z;          // Create empty unique pointers
-unique_ptr<int> q;
-z = make_unique<int>(16);   // Allocate int (16) on heap. Only one reference allowed.
-q = move(z);                // Move reference from z to q.
-if (z == nullptr){
-    cout << "Z null";
-}
-cout << *q;
-shared_ptr<B> r;
-r = dynamic_pointer_cast<B>(t); // Converts t to a shared_ptr<B>
-
 ```
 
-## `math.h`, `cmath` (floating point math)
+## Common Views
 
-```cpp
-#include <cmath>            // Include cmath (std namespace)
-sin(x); cos(x); tan(x);     // Trig functions, x (double) is in radians
-asin(x); acos(x); atan(x);  // Inverses
-atan2(y, x);                // atan(y/x)
-sinh(x); cosh(x); tanh(x);  // Hyperbolic sin, cos, tan functions
-exp(x); log(x); log10(x);   // e to the x, log base e, log base 10
-pow(x, y); sqrt(x);         // x to the y, square root
-ceil(x); floor(x);          // Round up or down (as a double)
-fabs(x); fmod(x, y);        // Absolute value, x mod y
+```
+filter, transform, reverse, take, drop
+keys, values, enumerate (C++23)
 ```
 
-## `assert.h`, `cassert` (Debugging Aid)
+## Range algorithms
 
 ```cpp
-#include <cassert>        // Include iostream (std namespace)
-assert(e);                // If e is false, print message and abort
-#define NDEBUG            // (before #include <assert.h>), turn off assert
+std::ranges::sort(vec);
+std::ranges::find(vec, 3);
 ```
 
-## `iostream.h`, `iostream` (Replaces `stdio.h`)
+---
+
+# 13. chrono
+
+## Durations
 
 ```cpp
-#include <iostream>         // Include iostream (std namespace)
-cin >> x >> y;              // Read words x and y (any type) from stdin
-cout << "x=" << 3 << endl;  // Write line to stdout
-cerr << x << y << flush;    // Write to stderr and flush
-c = cin.get();              // c = getchar();
-cin.get(c);                 // Read char
-cin.getline(s, n, '\n');    // Read line into char s[n] to '\n' (default)
-if (cin)                    // Good state (not EOF)?
-                            // To read/write any type T:
-istream& operator>>(istream& i, T& x) {i >> ...; x=...; return i;}
-ostream& operator<<(ostream& o, const T& x) {return o << ...;}
+using namespace std::chrono;
+seconds s(3);
+milliseconds ms = 500ms;
 ```
 
-## `fstream.h`, `fstream` (File I/O works like `cin`, `cout` as above)
+## Clocks
 
-
-```cpp
-#include <fstream>          // Include filestream (std namespace)
-ifstream f1("filename");    // Open text file for reading
-if (f1)                     // Test if open and input available
-    f1 >> x;                // Read object from file
-f1.get(s);                  // Read char or line
-f1.getline(s, n);           // Read line into string s[n]
-ofstream f2("filename");    // Open file for writing
-if (f2) f2 << x;            // Write to file
+```
+system_clock::now()
+steady_clock::now()
+high_resolution_clock::now()
 ```
 
-## `string` (Variable sized character array)
+## Formatting
 
 ```cpp
-#include <string>         // Include string (std namespace)
-string s1, s2="hello";    // Create strings
-s1.size(), s2.size();     // Number of characters: 0, 5
-s1 += s2 + ' ' + "world"; // Concatenation
-s1 == "hello world"       // Comparison, also <, >, !=, etc.
-s1[0];                    // 'h'
-s1.substr(m, n);          // Substring of size n starting at s1[m]
-s1.c_str();               // Convert to const char*
-s1 = to_string(12.05);    // Converts number to string
-getline(cin, s);          // Read line ending in '\n'
+std::format("{}", sys_seconds{...});
 ```
 
-## `vector` (Variable sized array/stack with built in memory allocation)
+---
+
+# 14. random
 
 ```cpp
-#include <vector>         // Include vector (std namespace)
-vector<int> a(10);        // a[0]..a[9] are int (default size is 0)
-vector<int> b{1,2,3};        // Create vector with values 1,2,3
-a.size();                 // Number of elements (10)
-a.push_back(3);           // Increase size to 11, a[10]=3
-a.back()=4;               // a[10]=4;
-a.pop_back();             // Decrease size by 1
-a.front();                // a[0];
-a[20]=1;                  // Crash: not bounds checked
-a.at(20)=1;               // Like a[20] but throws out_of_range()
-for (int& p : a)
-  p=0;                    // C++11: Set all elements of a to 0
-for (vector<int>::iterator p=a.begin(); p!=a.end(); ++p)
-  *p=0;                   // C++03: Set all elements of a to 0
-vector<int> b(a.begin(), a.end());  // b is copy of a
-vector<T> c(n, x);        // c[0]..c[n-1] init to x
-T d[10]; vector<T> e(d, d+10);      // e is initialized from d
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<int> dist(1, 10);
+int x = dist(gen);
 ```
 
-## `deque` (Array stack queue)
+---
 
-`deque<T>` is like `vector<T>`, but also supports:
+# 15. filesystem
 
 ```cpp
-#include <deque>          // Include deque (std namespace)
-a.push_front(x);          // Puts x at a[0], shifts elements toward back
-a.pop_front();            // Removes a[0], shifts toward front
+namespace fs = std::filesystem;
+fs::exists("a.txt");
+fs::directory_iterator(".");
+fs::copy("a.txt", "b.txt");
 ```
 
-## `utility` (pair)
+---
+
+# 16. Threading & Concurrency
+
+## Basic Threads
 
 ```cpp
-#include <utility>        // Include utility (std namespace)
-pair<string, int> a("hello", 3);  // A 2-element struct
-a.first;                  // "hello"
-a.second;                 // 3
+std::jthread t([]{ ... });    // auto-joining, stoppable
 ```
 
-## `map` (associative array - usually implemented as binary search trees - avg. time complexity: O(log n))
+## Mutexes
 
 ```cpp
-#include <map>            // Include map (std namespace)
-map<string, int> a;       // Map from string to int
-a["hello"] = 3;           // Add or replace element a["hello"]
-for (auto& p:a)
-    cout << p.first << p.second;  // Prints hello, 3
-a.size();                 // 1
+std::mutex m;
+std::lock_guard lg(m);
 ```
 
-## `unordered_map` (associative array - usually implemented as hash table - avg. time complexity: O(1))
+## Condition Variables
 
 ```cpp
-#include <unordered_map>  // Include map (std namespace)
-unordered_map<string, int> a; // Map from string to int
-a["hello"] = 3;           // Add or replace element a["hello"]
-for (auto& p:a)
-    cout << p.first << p.second;  // Prints hello, 3
-a.size();                 // 1
+std::condition_variable cv;
+cv.wait(lk, []{return ready;});
 ```
 
-## `set` (store unique elements - usually implemented as binary search trees - avg. time complexity: O(log n))
+## Atomics
 
 ```cpp
-#include <set>            // Include set (std namespace)
-set<int> s;               // Set of integers
-s.insert(123);            // Add element to set
-if (s.find(123) != s.end()) // Search for an element
-    s.erase(123);
-cout << s.size();         // Number of elements in set
+std::atomic<int> x = 0;
+x.fetch_add(1);
 ```
 
-## `unordered_set` (store unique elements - usually implemented as a hash set - avg. time complexity: O(1))
+## Barriers & Latches (C++20)
 
 ```cpp
-#include <unordered_set>  // Include set (std namespace)
-unordered_set<int> s;     // Set of integers
-s.insert(123);            // Add element to set
-if (s.find(123) != s.end()) // Search for an element
-    s.erase(123);
-cout << s.size();         // Number of elements in set
+std::barrier sync_point(3);
 ```
 
-## `algorithm` (A collection of 60 algorithms on sequences with iterators)
+---
+
+# 17. Formatting & I/O
+
+## format (C++20)
 
 ```cpp
-#include <algorithm>      // Include algorithm (std namespace)
-min(x, y); max(x, y);     // Smaller/larger of x, y (any type defining <)
-swap(x, y);               // Exchange values of variables x and y
-sort(a, a+n);             // Sort array a[0]..a[n-1] by <
-sort(a.begin(), a.end()); // Sort vector or deque
-reverse(a.begin(), a.end()); // Reverse vector or deque
+std::format("Hello {}", name);
 ```
 
-## `chrono` (Time related library)
+## I/O Basics
+
 ```cpp
-#include <chrono>         // Include chrono
-using namespace std::chrono; // Use namespace
-auto from =               // Get current time_point
-  high_resolution_clock::now();
-// ... do some work       
-auto to =                 // Get current time_point
-  high_resolution_clock::now();
-using ms =                // Define ms as floating point duration
-  duration<float, milliseconds::period>;
-                          // Compute duration in milliseconds
-cout << duration_cast<ms>(to - from)
-  .count() << "ms";
+std::cout << x;
+std::cin >> y;
 ```
 
-## `thread` (Multi-threading library)
+---
+
+# 18. Useful Idioms & Patterns
+
+### RAII
+
 ```cpp
-#include <thread>         // Include thread
-unsigned c = 
-  hardware_concurrency(); // Hardware threads (or 0 for unknown)
-auto lambdaFn = [](){     // Lambda function used for thread body
-    cout << "Hello multithreading";
+struct Guard {
+    ~Guard() { cleanup(); }
 };
-thread t(lambdaFn);       // Create and run thread with lambda
-t.join();                 // Wait for t finishes
-
-// --- shared resource example ---
-mutex mut;                         // Mutex for synchronization
-condition_variable cond;           // Shared condition variable
-const char* sharedMes              // Shared resource
-  = nullptr;
-auto pingPongFn =                  // thread body (lambda). Print someone else's message
-  [&](const char* mes){
-    while (true){
-      unique_lock<mutex> lock(mut);// locks the mutex 
-      do {                
-        cond.wait(lock, [&](){     // wait for condition to be true (unlocks while waiting which allows other threads to modify)        
-          return sharedMes != mes; // statement for when to continue
-        });
-      } while (sharedMes == mes);  // prevents spurious wakeup
-      cout << sharedMes << endl;
-      sharedMes = mes;       
-      lock.unlock();               // no need to have lock on notify 
-      cond.notify_all();           // notify all condition has changed
-    }
-  };
-sharedMes = "ping";
-thread t1(pingPongFn, sharedMes);  // start example with 3 concurrent threads
-thread t2(pingPongFn, "pong");
-thread t3(pingPongFn, "boing");
 ```
 
-## `future` (thread support library)
+### SFINAE
+
 ```cpp
-#include <future>         // Include future
-function<int(int)> fib =  // Create lambda function
-  [&](int i){
-    if (i <= 1){
-      return 1;
-    }
-    return fib(i-1) 
-         + fib(i-2);
-  };
-future<int> fut =         // result of async function
-  async(launch::async, fib, 4); // start async function in other thread
-// do some other work 
-cout << fut.get();        // get result of async function. Wait if needed.
+template <typename T>
+std::enable_if_t<std::is_integral_v<T>> foo(T x);
 ```
+
+### CRTP
+
+```cpp
+template<class D>
+struct Base {
+    void f() { static_cast<D*>(this)->impl(); }
+};
+```
+
+### Move-only types
+
+```cpp
+struct M {
+    M(const M&) = delete;
+    M(M&&) = default;
+};
+```
+
+---
+
